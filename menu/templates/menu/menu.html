@@ -1,17 +1,29 @@
-{# Единый рекурсивный шаблон: работает и как корень, и как ветка #}
-{% if branch %}
-    {% for item, children in branch %}
+{# Шаблон для отрисовки древовидного меню #}
+{% if menu_structure %}
+    {% for item, children in menu_structure %}
         <li {% if item.is_active %}class="active"{% endif %}>
             <a href="{{ item.url_resolved }}">{{ item.title }}</a>
             {% if children %}
                 {% if item.id in expanded_ids %}
+                    {# Разворачиваем детей для предков активного пункта #}
                     <ul>
-                        {% with branch=children %}
-                            {% include 'menu/menu.html' %}
-                        {% endwith %}
+                        {% for child, grandchildren in children %}
+                            <li {% if child.is_active %}class="active"{% endif %}>
+                                <a href="{{ child.url_resolved }}">{{ child.title }}</a>
+                                {% if grandchildren %}
+                                    <ul>
+                                        {% for grandchild, great_grandchildren in grandchildren %}
+                                            <li {% if grandchild.is_active %}class="active"{% endif %}>
+                                                <a href="{{ grandchild.url_resolved }}">{{ grandchild.title }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
                     </ul>
                 {% elif item.is_active %}
-                    {# Для активного узла — только первый уровень детей #}
+                    {# Для активного узла показываем только первый уровень детей #}
                     <ul>
                         {% for child, grandchildren in children %}
                             <li {% if child.is_active %}class="active"{% endif %}>
@@ -23,9 +35,4 @@
             {% endif %}
         </li>
     {% endfor %}
-{% else %}
-    {# Точка входа: передаём корневую структуру как branch и рекурсивно рендерим #}
-    {% with branch=menu_structure %}
-        {% include 'menu/menu.html' %}
-    {% endwith %}
 {% endif %}
