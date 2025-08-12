@@ -1,0 +1,31 @@
+{# Единый рекурсивный шаблон: работает и как корень, и как ветка #}
+{% if branch %}
+    {% for item, children in branch %}
+        <li {% if item.is_active %}class="active"{% endif %}>
+            <a href="{{ item.url_resolved }}">{{ item.title }}</a>
+            {% if children %}
+                {% if item.id in expanded_ids %}
+                    <ul>
+                        {% with branch=children %}
+                            {% include 'menu/menu.html' %}
+                        {% endwith %}
+                    </ul>
+                {% elif item.is_active %}
+                    {# Для активного узла — только первый уровень детей #}
+                    <ul>
+                        {% for child, grandchildren in children %}
+                            <li {% if child.is_active %}class="active"{% endif %}>
+                                <a href="{{ child.url_resolved }}">{{ child.title }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endif %}
+        </li>
+    {% endfor %}
+{% else %}
+    {# Точка входа: передаём корневую структуру как branch и рекурсивно рендерим #}
+    {% with branch=menu_structure %}
+        {% include 'menu/menu.html' %}
+    {% endwith %}
+{% endif %}

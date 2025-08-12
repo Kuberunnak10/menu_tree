@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+    <header>
+    </header>
+
+    <nav>
+        {% load menu_tags %}
+        <ul class="menu">
+            {% draw_menu 'main_menu' %}
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+    </footer>
+</body>
+</html>
