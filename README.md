@@ -61,3 +61,8 @@ docker-compose up --build
 - Menu name: `main_menu`
 - URL name: `our_team`
 - Parent: `О нас`
+
+
+## Главная страница
+
+`http://localhost:8000/home/`
