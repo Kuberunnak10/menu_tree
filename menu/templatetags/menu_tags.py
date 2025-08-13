@@ -8,21 +8,13 @@ register = template.Library()
 
 @register.inclusion_tag('menu/menu.html', takes_context=True)
 def draw_menu(context: Mapping[str, Any], menu_name: str) -> Dict[str, Any]:
-    """Кастомный тег для отрисовки древовидного меню.
-
-    Условия:
-    - Ровно один запрос к БД (используется единичный queryset по названию меню)
-    - Развернуты предки активного пункта и первый уровень детей активного пункта
-    - Активность определяется по request.path
-    """
+    """Кастомный тег для отрисовки древовидного меню."""
     request = context['request']
 
-    # Ровно один запрос к БД
     items = list(
         MenuItem.objects.filter(menu_name=menu_name).select_related('parent')
     )
 
-    # Подготовка быстрых индексов и вычисление URL/активности
     id_to_item = {}
     active_item = None
     for item in items:
@@ -32,13 +24,10 @@ def draw_menu(context: Mapping[str, Any], menu_name: str) -> Dict[str, Any]:
         if item.is_active:
             active_item = item
 
-    # Дерево parent_id -> [items]
     parent_id_to_children = {}
     for item in items:
         parent_id_to_children.setdefault(item.parent_id, []).append(item)
 
-    # Найти множество id, которые должны быть развернуты: предки активного + сам активный
-    # Разворачиваем только предков активного узла (не включая сам активный)
     expanded_ids = []
     if active_item is not None:
         current = id_to_item.get(active_item.parent_id)
@@ -59,5 +48,5 @@ def draw_menu(context: Mapping[str, Any], menu_name: str) -> Dict[str, Any]:
 
     return {
         'menu_structure': menu_structure,
-        'expanded_ids': expanded_ids,  # список id узлов, чьи дети следует показать
+        'expanded_ids': expanded_ids,  # список id узлов
     }
